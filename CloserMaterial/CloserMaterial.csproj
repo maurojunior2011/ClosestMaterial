@@ -87,6 +87,7 @@
     <Compile Include="Patches\GamePatch.cs" />
     <Compile Include="Patches\PlayerControllerPatch.cs" />
     <Compile Include="Info\InfoData.cs" />
+    <Compile Include="Patches\BuildingDefPatch.cs" />
     <Compile Include="Tool\PlanTool.cs" />
     <Compile Include="Tool\PlanToolHoverCard.cs" />
     <Compile Include="Patches\ToolMenuPatch.cs" />

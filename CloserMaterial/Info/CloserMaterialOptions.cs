@@ -11,5 +11,8 @@ namespace CloserMaterial.Info
 
         [Option("Any Blueprint", "The tool will change the materials of all blueprints or just the ones that have this MOD's material.", null)]
         public bool AllBlueprints { get; set; } = false;
+
+        [Option("Automatic", "MOD material is automatically replaced with the closest material in construction.", null)]
+        public bool AutomaticChange { get; set; } = false;
     }
 }

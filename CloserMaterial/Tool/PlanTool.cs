@@ -60,55 +60,6 @@ namespace CloserMaterial.Tool
             this.gameObject.AddComponent<PlanToolHoverCard>();
         }
 
-        private IList<Tag> CloserMaterial(BuildingDef __instance, Vector3 pos, IList<Tag> elements)
-        {
-            IList<int> listDistances = new List<int>(elements.Count);
-            for (int i = 0; i < elements.Count; i++)
-            {
-                listDistances.Add(999999);
-            }
-
-            IList<Tag> newElements = new List<Tag>(elements.Count);
-            for (int i = 0; i < elements.Count; i++)
-            {
-                newElements.Add(elements[i]);
-            }
-
-            //inventory
-            WorldInventory worldInventory = ClusterManager.Instance.GetWorld(ClusterManager.Instance.activeWorldId).worldInventory;
-            var lista = worldInventory.GetPickupables(GameTags.Pickupable);
-
-            //for each element
-            foreach (Pickupable pickupable in lista)
-            {
-                //game validation
-                if (pickupable.HasTag(GameTags.StoredPrivate))
-                    continue;
-
-                for (int i = 0; i < __instance.MaterialCategory.Length; i++)
-                {
-                    if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
-                    {
-                        int cellP = pickupable.GetCell();
-                        int cellC = Grid.PosToCell(pos);
-
-                        int d = Grid.GetCellDistance(cellP, cellC);
-
-                        bool validation = (double)worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
-
-                        //Get Closer Material
-                        if (d < listDistances[i] && validation)
-                        {
-                            listDistances[i] = d;
-                            newElements[i] = pickupable.PrimaryElement.Element.tag;
-                        }
-                    }
-                }
-            }
-
-            return newElements;
-        }
-
         protected override void OnDragComplete(Vector3 cursorDown, Vector3 cursorUp)
         {
             base.OnDragComplete(cursorDown, cursorUp);
@@ -349,7 +300,7 @@ namespace CloserMaterial.Tool
 
                         //showDebug(input, layer, pos, listComponentsInput[0].Def);
 
-                        IList<Tag> lista2 = CloserMaterial(listComponentsInput[0].Def, posInput, lista);
+                        IList<Tag> lista2 = Utils.CloserMaterial(listComponentsInput[0].Def, posInput, lista);
 
                         bool isReplace = layer == (int)listComponentsInput[0].Def.ReplacementLayer;
                         bool other = false;
