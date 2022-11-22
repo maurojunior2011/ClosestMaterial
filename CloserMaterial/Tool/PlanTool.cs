@@ -109,49 +109,6 @@ namespace CloserMaterial.Tool
             return newElements;
         }
 
-        private void showDebugBasic(GameObject input, int layer, int cell)
-        {
-            Debug.Log("CloserMaterial ===============================================================");
-            var temp = input.GetComponents<object>();
-            Debug.Log("CloserMaterial = Components " + input.name + " => " + string.Join(" <==> ", temp));
-            Debug.Log("CloserMaterial = Layer => " + layer + " => " + (ObjectLayer)layer);
-            Debug.Log("CloserMaterial = Cell => " + cell);
-            Debug.Log("CloserMaterial = Name => " + input.name);
-            Debug.Log("CloserMaterial ===============================================================");
-        }
-
-        private void showDebug(GameObject input, int layer, Vector3 posInput, BuildingDef defInput)
-        {
-            Debug.Log("CloserMaterial ===============================================================");
-            var temp = input.GetComponents<object>();
-            Debug.Log("CloserMaterial = Components " + input.name + " => " + string.Join(" <==> ", temp));
-            Debug.Log("CloserMaterial = Layer => " + layer + " => " + (ObjectLayer)layer);
-            Debug.Log("CloserMaterial = Pos => " + posInput.ToString());
-            Debug.Log("CloserMaterial = Name => " + defInput.Name);
-            Debug.Log("CloserMaterial = Tile? => " + defInput.IsTilePiece);
-            Debug.Log("CloserMaterial = PrefabId => " + defInput.PrefabID);
-            Debug.Log("CloserMaterial = ObjectLayer => " + defInput.ObjectLayer);
-            Debug.Log("CloserMaterial = TileLayer => " + defInput.TileLayer);
-            Debug.Log("CloserMaterial = ReplacementLayer => " + defInput.ReplacementLayer);
-            Tag tag = input.GetComponent<PrimaryElement>().Element.tag;
-            Debug.Log("CloserMaterial = PrimaryElement => " + tag);
-            Debug.Log("CloserMaterial ===============================================================");
-        }
-
-        private void showDebugMethod(string method, Tag element, BuildingDef defInput)
-        {
-            Debug.Log("CloserMaterial ===============================================================");
-            Debug.Log("CloserMaterial = Method => " + method);
-            Debug.Log("CloserMaterial = Name => " + defInput.Name);
-            Debug.Log("CloserMaterial = Tile? => " + defInput.IsTilePiece);
-            Debug.Log("CloserMaterial = PrefabId => " + defInput.PrefabID);
-            Debug.Log("CloserMaterial = ObjectLayer => " + defInput.ObjectLayer);
-            Debug.Log("CloserMaterial = TileLayer => " + defInput.TileLayer);
-            Debug.Log("CloserMaterial = ReplacementLayer => " + defInput.ReplacementLayer);
-            Debug.Log("CloserMaterial = PrimaryElement => " + element);
-            Debug.Log("CloserMaterial ===============================================================");
-        }
-
         protected override void OnDragComplete(Vector3 cursorDown, Vector3 cursorUp)
         {
             base.OnDragComplete(cursorDown, cursorUp);
@@ -399,22 +356,18 @@ namespace CloserMaterial.Tool
                         if (isReplace)
                         {
                             //showDebug(input, layer, posInput, listComponentsInput[0].Def);
-                            Debug.Log("teste A");
                             IList<Tag> lista3 = Grid.Objects[cell, (int)listComponentsInput[0].Def.ObjectLayer].GetComponent<Deconstructable>().constructionElements;
-                            Debug.Log("teste B");
+                            
                             for (int i = 0; i < lista3.Count; i++)
                             {
-                                Debug.Log("teste C");
                                 if (lista2[i].GetHash() != lista3[i].GetHash())
                                 {
-                                    Debug.Log("teste D");
                                     other = true;
                                 }
                             }
                         }
                         else
                         {
-                            Debug.Log("teste E");
                             other = true;
                         }
 

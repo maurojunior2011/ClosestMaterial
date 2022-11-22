@@ -6,7 +6,7 @@ namespace CloserMaterial
 {
     public static class MyDebug
     {
-        public static void showDebugBasic(GameObject input, int layer)
+        public static void ShowDebugBasic(GameObject input, int layer)
         {
             Debug.Log("CloserMaterial ===============================================================");
             var temp = input.GetComponents<object>();
@@ -16,7 +16,7 @@ namespace CloserMaterial
             Debug.Log("CloserMaterial ===============================================================");
         }
 
-        public static void showListTag(IList<Tag> list)
+        public static void ShowListTag(IList<Tag> list)
         {
             Debug.Log("CloserMaterial ===============================================================");
             foreach (var tag in list)
@@ -26,7 +26,7 @@ namespace CloserMaterial
             Debug.Log("CloserMaterial ===============================================================");
         }
 
-        public static void showDebug(GameObject input, int layer, Vector3 posInput, BuildingDef defInput)
+        public static void ShowDebug(GameObject input, int layer, Vector3 posInput, BuildingDef defInput)
         {
             Debug.Log("CloserMaterial ===============================================================");
             var temp = input.GetComponents<object>();
@@ -44,7 +44,7 @@ namespace CloserMaterial
             Debug.Log("CloserMaterial ===============================================================");
         }
 
-        public static void showDebugComponents(GameObject input)
+        public static void ShowDebugComponents(GameObject input)
         {
             Debug.Log("CloserMaterial ===============================================================");
             var temp = input.GetComponents<object>();
@@ -52,7 +52,7 @@ namespace CloserMaterial
             Debug.Log("CloserMaterial ===============================================================");
         }
 
-        public static void showDebugMethod(string method, Tag element, BuildingDef defInput)
+        public static void ShowDebugMethod(string method, Tag element, BuildingDef defInput)
         {
             Debug.Log("CloserMaterial ===============================================================");
             Debug.Log("CloserMaterial = Method => " + method);
