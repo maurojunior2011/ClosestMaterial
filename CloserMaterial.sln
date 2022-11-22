@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloserMaterial", "CloserMaterial\CloserMaterial.csproj", "{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mergedown = Debug|Mergedown
+		Debug|Vanilla = Debug|Vanilla
+		Release|Any CPU = Release|Any CPU
+		Release|Mergedown = Release|Mergedown
+		Release|Vanilla = Release|Vanilla
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Mergedown.ActiveCfg = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Mergedown.Build.0 = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Vanilla.ActiveCfg = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Debug|Vanilla.Build.0 = Debug|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Mergedown.ActiveCfg = Release|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Mergedown.Build.0 = Release|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Vanilla.ActiveCfg = Release|Any CPU
+		{BB5D14CB-1E97-4F5F-B359-BC447382EE5A}.Release|Vanilla.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {621B1D66-3988-4759-9975-9F596FFE19AC}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+    <OutputType>Library</OutputType>
+    <LangVersion>8.0</LangVersion>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Copyright>MauroJunior &#169; 2018-2021</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SupportedContent>ALL</SupportedContent>
+    <MinimumSupportedBuild>490405</MinimumSupportedBuild>
+    <APIVersion>2</APIVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GameContentType Condition="'$(Configuration)' == 'VanillaRelease' Or '$(Configuration)' == 'VanillaDebug'">Vanilla</GameContentType>
+    <GameContentType Condition="'$(Configuration)' == 'SpacedOutRelease' Or '$(Configuration)' == 'SpacedOutDebug'">SpacedOut</GameContentType>
+    <BuildType Condition="'$(Configuration)' == 'VanillaRelease' Or '$(Configuration)' == 'SpacedOutRelease'">Release</BuildType>
+    <BuildType Condition="'$(Configuration)' == 'VanillaDebug' Or '$(Configuration)' == 'SpacedOutDebug'">Debug</BuildType>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <DistributionFolder Condition="'$(Configuration)' == 'VanillaRelease' Or '$(Configuration)' == 'VanillaDebug'">\archived_versions\vanilla</DistributionFolder>
+    <DistributionFolder Condition="'$(Configuration)' == 'SpacedOutRelease' Or '$(Configuration)' == 'SpacedOutDebug'"></DistributionFolder>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildType)' == 'Release'">
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BuildType)' == 'Debug'">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <PackageReference Include="ILMerge" Version="3.0.41" GeneratePathProperty="true" />
+    <PackageReference Include="Cairath.ONIMetadataFileGenerator" Version="1.0.0" GeneratePathProperty="true"/>
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+
+  <!--<ItemGroup Condition="'$(AssemblyName)' != 'CaiLib'">
+    <ProjectReference Include="..\CaiLib\^CaiLib.csproj">
+      <Project>{2ded5b57-fd32-4f67-88b5-924ac4300952}</Project>
+      <Name>^CaiLib</Name>
+    </ProjectReference>
+  </ItemGroup>-->
+</Project>

@@ -1,0 +1,46 @@
+---
+elements:
+  - elementId: PlanBuildableRaw
+    specificHeatCapacity: 3.05
+    thermalConductivity: 1
+    solidSurfaceAreaMultiplier: 1
+    liquidSurfaceAreaMultiplier: 1
+    gasSurfaceAreaMultiplier: 1
+    strength: 1
+    highTemp: 5000
+    defaultTemperature: 230
+    defaultMass: 500
+    maxMass: 800
+    hardness: 10
+    molarMass: 35
+    lightAbsorptionFactor: 0.8
+    lowTempTransitionTarget: Ice
+    highTempTransitionTarget: Steam
+    highTempTransitionOreId: Iron
+    materialCategory: BuildableRaw
+    tags:
+    - BuildableRaw
+    - Plastic
+    - Metal
+    - RefinedMetal
+    - Steel
+    - Transparent
+    - Farmable
+    - Plumbable
+    - BuildingFiber
+    - FlyingCritterEdible
+    - Lead
+    - BuildingWood
+    - Ice
+    - PreciousRock
+    - Obsidian
+    - Glass
+    - Diamond
+    - Ceramic
+    - Polypropylene
+    - BuildableAny
+    buildMenuSort: 5
+    isDisabled: false
+    state: Solid
+    localizationID: STRINGS.ELEMENTS.PLANBUILDABLERAW.NAME
+    dlcId: ""

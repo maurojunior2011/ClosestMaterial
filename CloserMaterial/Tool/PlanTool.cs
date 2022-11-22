@@ -1,0 +1,481 @@
+﻿using CloserMaterial.Info;
+using HarmonyLib;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using static Grid.Restriction;
+using static Operational;
+
+namespace CloserMaterial.Tool
+{
+    public sealed class PlanTool : FilteredDragTool
+    {
+        private List<int> IDs = new List<int>();
+        public static PlanTool Instance { get; private set; }
+
+        public PlanTool() => PlanTool.Instance = this;
+
+        protected override void OnActivateTool()
+        {
+            base.OnActivateTool();
+            ToolMenu.Instance.PriorityScreen.Show();
+        }
+
+        protected override void OnDeactivateTool(InterfaceTool new_tool)
+        {
+            base.OnDeactivateTool(new_tool);
+            ToolMenu.Instance.PriorityScreen.Show(false);
+        }
+
+        public static void DestroyInstance() => PlanTool.Instance = (PlanTool)null;
+
+        protected override void OnPrefabInit()
+        {
+            base.OnPrefabInit();
+            this.visualizer = new GameObject("PlanVisualizer");
+            this.visualizer.SetActive(false);
+            GameObject go = new GameObject();
+            SpriteRenderer spriteRenderer = go.AddComponent<SpriteRenderer>();
+            spriteRenderer.color = InfoData.PLAN_COLOR_DRAG;
+            spriteRenderer.sprite = InfoData.PLAN_VISUALIZER_SPRITE;
+            go.transform.SetParent(this.visualizer.transform);
+            go.transform.localPosition = new Vector3(0.0f, Grid.HalfCellSizeInMeters);
+            Sprite sprite = spriteRenderer.sprite;
+            go.transform.localScale = new Vector3(Grid.CellSizeInMeters / ((float)sprite.texture.width / sprite.pixelsPerUnit), Grid.CellSizeInMeters / ((float)sprite.texture.height / sprite.pixelsPerUnit));
+            go.SetLayerRecursively(LayerMask.NameToLayer("Overlay"));
+            this.visualizer.transform.SetParent(this.transform);
+            FieldInfo fieldInfo1 = AccessTools.Field(typeof(DragTool), "areaVisualizer");
+            FieldInfo fieldInfo2 = AccessTools.Field(typeof(DragTool), "areaVisualizerSpriteRenderer");
+            GameObject gameObject1 = Util.KInstantiate((GameObject)AccessTools.Field(typeof(DeconstructTool), "areaVisualizer").GetValue((object)DeconstructTool.Instance));
+            gameObject1.SetActive(false);
+            gameObject1.name = "PlanAreaVisualizer";
+            SpriteRenderer component = gameObject1.GetComponent<SpriteRenderer>();
+            fieldInfo2.SetValue((object)this, (object)component);
+            gameObject1.transform.SetParent(this.transform);
+            gameObject1.GetComponent<SpriteRenderer>().color = InfoData.PLAN_COLOR_DRAG;
+            gameObject1.GetComponent<SpriteRenderer>().material.color = InfoData.PLAN_COLOR_DRAG;
+            GameObject gameObject2 = gameObject1;
+            fieldInfo1.SetValue((object)this, (object)gameObject2);
+            this.gameObject.AddComponent<PlanToolHoverCard>();
+        }
+
+        private IList<Tag> CloserMaterial(BuildingDef __instance, Vector3 pos, IList<Tag> elements)
+        {
+            IList<int> listDistances = new List<int>(elements.Count);
+            for (int i = 0; i < elements.Count; i++)
+            {
+                listDistances.Add(999999);
+            }
+
+            IList<Tag> newElements = new List<Tag>(elements.Count);
+            for (int i = 0; i < elements.Count; i++)
+            {
+                newElements.Add(elements[i]);
+            }
+
+            //inventory
+            WorldInventory worldInventory = ClusterManager.Instance.GetWorld(ClusterManager.Instance.activeWorldId).worldInventory;
+            var lista = worldInventory.GetPickupables(GameTags.Pickupable);
+
+            //for each element
+            foreach (Pickupable pickupable in lista)
+            {
+                //game validation
+                if (pickupable.HasTag(GameTags.StoredPrivate))
+                    continue;
+
+                for (int i = 0; i < __instance.MaterialCategory.Length; i++)
+                {
+                    if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
+                    {
+                        int cellP = pickupable.GetCell();
+                        int cellC = Grid.PosToCell(pos);
+
+                        int d = Grid.GetCellDistance(cellP, cellC);
+
+                        bool validation = (double)worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
+
+                        //Get Closer Material
+                        if (d < listDistances[i] && validation)
+                        {
+                            listDistances[i] = d;
+                            newElements[i] = pickupable.PrimaryElement.Element.tag;
+                        }
+                    }
+                }
+            }
+
+            return newElements;
+        }
+
+        private void showDebugBasic(GameObject input, int layer, int cell)
+        {
+            Debug.Log("CloserMaterial ===============================================================");
+            var temp = input.GetComponents<object>();
+            Debug.Log("CloserMaterial = Components " + input.name + " => " + string.Join(" <==> ", temp));
+            Debug.Log("CloserMaterial = Layer => " + layer + " => " + (ObjectLayer)layer);
+            Debug.Log("CloserMaterial = Cell => " + cell);
+            Debug.Log("CloserMaterial = Name => " + input.name);
+            Debug.Log("CloserMaterial ===============================================================");
+        }
+
+        private void showDebug(GameObject input, int layer, Vector3 posInput, BuildingDef defInput)
+        {
+            Debug.Log("CloserMaterial ===============================================================");
+            var temp = input.GetComponents<object>();
+            Debug.Log("CloserMaterial = Components " + input.name + " => " + string.Join(" <==> ", temp));
+            Debug.Log("CloserMaterial = Layer => " + layer + " => " + (ObjectLayer)layer);
+            Debug.Log("CloserMaterial = Pos => " + posInput.ToString());
+            Debug.Log("CloserMaterial = Name => " + defInput.Name);
+            Debug.Log("CloserMaterial = Tile? => " + defInput.IsTilePiece);
+            Debug.Log("CloserMaterial = PrefabId => " + defInput.PrefabID);
+            Debug.Log("CloserMaterial = ObjectLayer => " + defInput.ObjectLayer);
+            Debug.Log("CloserMaterial = TileLayer => " + defInput.TileLayer);
+            Debug.Log("CloserMaterial = ReplacementLayer => " + defInput.ReplacementLayer);
+            Tag tag = input.GetComponent<PrimaryElement>().Element.tag;
+            Debug.Log("CloserMaterial = PrimaryElement => " + tag);
+            Debug.Log("CloserMaterial ===============================================================");
+        }
+
+        private void showDebugMethod(string method, Tag element, BuildingDef defInput)
+        {
+            Debug.Log("CloserMaterial ===============================================================");
+            Debug.Log("CloserMaterial = Method => " + method);
+            Debug.Log("CloserMaterial = Name => " + defInput.Name);
+            Debug.Log("CloserMaterial = Tile? => " + defInput.IsTilePiece);
+            Debug.Log("CloserMaterial = PrefabId => " + defInput.PrefabID);
+            Debug.Log("CloserMaterial = ObjectLayer => " + defInput.ObjectLayer);
+            Debug.Log("CloserMaterial = TileLayer => " + defInput.TileLayer);
+            Debug.Log("CloserMaterial = ReplacementLayer => " + defInput.ReplacementLayer);
+            Debug.Log("CloserMaterial = PrimaryElement => " + element);
+            Debug.Log("CloserMaterial ===============================================================");
+        }
+
+        protected override void OnDragComplete(Vector3 cursorDown, Vector3 cursorUp)
+        {
+            base.OnDragComplete(cursorDown, cursorUp);
+            if (!this.hasFocus)
+                return;
+
+            IDs.Clear();
+            SimHashes simElemA = InfoData.PlanRaw;
+            Element elementA = ElementLoader.FindElementByHash(simElemA);
+
+            int x1;
+            int y1;
+            Grid.PosToXY(cursorDown, out x1, out y1);
+            int x2;
+            int y2;
+            Grid.PosToXY(cursorUp, out x2, out y2);
+            if (x1 > x2)
+                Util.Swap<int>(ref x1, ref x2);
+            if (y1 > y2)
+                Util.Swap<int>(ref y1, ref y2);
+            for (int x3 = x1; x3 <= x2; ++x3)
+            {
+                for (int y3 = y1; y3 <= y2; ++y3)
+                {
+                    int cell1 = Grid.XYToCell(x3, y3);
+                    if (Grid.IsVisible(cell1))
+                    {
+                        for (int layer = 0; layer < Grid.ObjectLayers.Length; ++layer)
+                        {
+                            GameObject input = Grid.Objects[cell1, layer];
+
+                            if (input != null && !IDs.Contains(input.GetInstanceID()))
+                            {
+                                if (input != null && this.IsActiveLayer(this.GetFilterLayerFromGameObject(input)))
+                                {
+                                    //showDebugBasic(input, layer);
+
+                                    var listComponentsInput = input.GetComponents<Building>();
+
+                                    if (listComponentsInput != null && listComponentsInput.Count() > 0)
+                                    {
+                                        //showDebugBasic(input, layer);
+                                        buildingPlan2(input, cell1, layer, elementA);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private GameObject BuildBuilding(int cell, BuildingDef def, Orientation orientation, IList<Tag> elements, Vector3 posInput, KBatchedAnimController animControllerInput, bool replace)
+        {
+
+            //showDebugMethod("BuildBuilding", elements[0], def);
+
+            GameObject Visualizer;
+
+            Visualizer = def.Instantiate(posInput, orientation, elements);
+            if (Visualizer == null)
+                return Visualizer;
+
+            Visualizer.transform.SetPosition(posInput);
+            if (Visualizer.GetComponent<Rotatable>() != null)
+                Visualizer.GetComponent<Rotatable>().SetOrientation(orientation);
+            KBatchedAnimController component = Visualizer.GetComponent<KBatchedAnimController>();
+            if (component != null)
+            {
+                component.visibilityType = KAnimControllerBase.VisibilityType.Always;
+                component.isMovable = false;
+                component.Offset = animControllerInput.Offset;
+                component.TintColour = UnityEngine.Color.green;
+                component.SetLayer(LayerMask.NameToLayer("Place"));
+            }
+            else
+                Visualizer.SetLayerRecursively(LayerMask.NameToLayer("Place"));
+
+            if (ToolMenu.Instance != null)
+                Visualizer.FindOrAddComponent<Prioritizable>().SetMasterPriority(ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority());
+
+            Visualizer.SetActive(true);
+
+            return Visualizer;
+        }
+
+        private GameObject BuildUtility(int cell, BuildingDef def, Orientation orientation, IList<Tag> elements, Vector3 posInput, KBatchedAnimController animControllerInput, bool replace)
+        {
+            //showDebugMethod("BuildUtility", elements[0], def);
+
+            GameObject Visualizer;
+            UtilityConnections flag = UtilityConnections.Down;
+            IUtilityNetworkMgr networkManager = null;
+            if (def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>() != null)
+            {
+                if (def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>().GetNetworkManager() != null)
+                {
+                    networkManager = def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>().GetNetworkManager();
+                    flag = networkManager.GetConnections(cell, false);
+                }
+            }
+
+            Constructable componentC = def.BuildingUnderConstruction.GetComponent<Constructable>();
+
+            if (replace) componentC.IsReplacementTile = true;
+
+            Visualizer = def.Instantiate(posInput, orientation, elements);
+
+            if (replace) componentC.IsReplacementTile = true;
+
+            if (Visualizer == null)
+            {
+                return Visualizer;
+            }
+            Visualizer.transform.SetPosition(posInput);
+            if (Visualizer.GetComponent<Rotatable>() != null)
+            {
+
+                Visualizer.GetComponent<Rotatable>().SetOrientation(orientation);
+            }
+            KBatchedAnimController component = Visualizer.GetComponent<KBatchedAnimController>();
+            if (component != null)
+            {
+                if (networkManager != null)
+                {
+                    string anim_name = networkManager.GetVisualizerString(flag) + "_place";
+                    if (component.HasAnimation((HashedString)anim_name))
+                    {
+                        component.Play((HashedString)anim_name);
+                    }
+                }
+                component.visibilityType = KAnimControllerBase.VisibilityType.Always;
+                component.isMovable = false;
+                component.Offset = animControllerInput.Offset;
+                component.TintColour = UnityEngine.Color.green;
+                component.SetLayer(LayerMask.NameToLayer("Place"));
+            }
+            else
+            {
+                Visualizer.SetLayerRecursively(LayerMask.NameToLayer("Place"));
+            }
+
+            if (def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>() != null && Visualizer.GetComponent<KAnimGraphTileVisualizer>() != null)
+            {
+                if (replace)
+                {
+                    Visualizer.GetComponent<KAnimGraphTileVisualizer>().Connections = flag;
+                    Visualizer.GetComponent<KAnimGraphTileVisualizer>().UpdateConnections(flag);
+                }
+                else
+                {
+                    Visualizer.GetComponent<KAnimGraphTileVisualizer>().Connections = flag;
+                    Visualizer.GetComponent<KAnimGraphTileVisualizer>().UpdateConnections(flag);
+                    int connectionCount = 0;
+                    if (componentC.IconConnectionAnimation(0.1f * (float)connectionCount, connectionCount, "Wire", "OutletConnected_release") || componentC.IconConnectionAnimation(0.1f * (float)connectionCount, connectionCount, "Pipe", "OutletConnected_release"))
+                    {
+                    }
+                }
+            }
+
+            if (ToolMenu.Instance != null)
+            {
+                Visualizer.FindOrAddComponent<Prioritizable>().SetMasterPriority(ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority());
+            }
+            Visualizer.SetActive(true);
+
+            return Visualizer;
+        }
+
+        private GameObject BuildTile(int cell, BuildingDef def, Orientation orientation, IList<Tag> elements, Vector3 posInput, KBatchedAnimController animControllerInput, bool replace)
+        {
+            //showDebugMethod("BuildTile", elements[0], def);
+
+            GameObject Visualizer;
+
+            Constructable componentC = def.BuildingUnderConstruction.GetComponent<Constructable>();
+
+            if (replace) componentC.IsReplacementTile = true;
+
+            Visualizer = def.Instantiate(posInput, orientation, elements);
+
+            if (replace) componentC.IsReplacementTile = false;
+
+            if (Visualizer == null)
+                return Visualizer;
+
+            Visualizer.transform.SetPosition(posInput);
+
+            if (Visualizer.GetComponent<Rotatable>() != null)
+                Visualizer.GetComponent<Rotatable>().SetOrientation(orientation);
+            KBatchedAnimController component = Visualizer.GetComponent<KBatchedAnimController>();
+            if (component != null)
+            {
+                component.visibilityType = KAnimControllerBase.VisibilityType.Always;
+                component.isMovable = false;
+                component.Offset = animControllerInput.Offset;
+                component.TintColour = UnityEngine.Color.green;
+            }
+
+            if (def.isKAnimTile)
+            {
+                World.Instance.blockTileRenderer.RemoveBlock(def, replace, SimHashes.Void, cell);
+                World.Instance.blockTileRenderer.AddBlock(LayerMask.NameToLayer("Overlay"), Visualizer.GetComponents<Building>()[0].Def, replace, SimHashes.Void, cell);
+            }
+
+            if (ToolMenu.Instance != null)
+            {
+                Visualizer.FindOrAddComponent<Prioritizable>().SetMasterPriority(ToolMenu.Instance.PriorityScreen.GetLastSelectedPriority());
+            }
+
+            Visualizer.SetActive(true);
+            return Visualizer;
+        }
+
+        private void buildingPlan2(GameObject input, int cell, int layer, Element elementA)
+        {
+            Constructable compConstructable = input.GetComponent<Constructable>();
+            Cancellable compCancellable = input.GetComponent<Cancellable>();
+            PrimaryElement compPrimaryElement = input.GetComponent<PrimaryElement>();
+
+            if (compCancellable != null && compConstructable != null && compPrimaryElement != null)
+            {
+                foreach (var item in input.GetComponents<Building>())
+                {
+                    TileVisualizer.RefreshCell(cell, item.Def.TileLayer, item.Def.ReplacementLayer);
+                }
+
+                IList<Tag> lista = compConstructable.SelectedElementsTags;
+
+                if (lista != null && lista.Count > 0)
+                {
+                    if (lista.Any(x => x.GetHash() == elementA.tag.GetHash()) || InfoData.OPTIONS.AllBlueprints)
+                    {
+                        var listComponentsInput = input.GetComponents<Building>();
+
+                        Vector3 posInput = input.transform.GetPosition();
+                        KBatchedAnimController animControllerInput = input.GetComponent<KBatchedAnimController>();
+
+                        //showDebug(input, layer, pos, listComponentsInput[0].Def);
+
+                        IList<Tag> lista2 = CloserMaterial(listComponentsInput[0].Def, posInput, lista);
+
+                        bool isReplace = layer == (int)listComponentsInput[0].Def.ReplacementLayer;
+                        bool other = false;
+                        if (isReplace)
+                        {
+                            //showDebug(input, layer, posInput, listComponentsInput[0].Def);
+                            Debug.Log("teste A");
+                            IList<Tag> lista3 = Grid.Objects[cell, (int)listComponentsInput[0].Def.ObjectLayer].GetComponent<Deconstructable>().constructionElements;
+                            Debug.Log("teste B");
+                            for (int i = 0; i < lista3.Count; i++)
+                            {
+                                Debug.Log("teste C");
+                                if (lista2[i].GetHash() != lista3[i].GetHash())
+                                {
+                                    Debug.Log("teste D");
+                                    other = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("teste E");
+                            other = true;
+                        }
+
+                        if (lista2.All(x => x.GetHash() != elementA.tag.GetHash()))
+                        {
+                            if (other)
+                            {
+                                Orientation orientation = listComponentsInput[0].Orientation;
+
+                                GameObject gameObject = null;
+
+                                if (listComponentsInput != null && listComponentsInput.Count() > 0)
+                                {
+                                    compCancellable.Trigger((int)GameHashes.Cancel);
+
+                                    if (listComponentsInput[0].Def.IsTilePiece)
+                                    {
+                                        if (listComponentsInput[0].Def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>() != null)
+                                            gameObject = BuildUtility(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
+                                        else
+                                            gameObject = BuildTile(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
+                                    }
+                                    else
+                                        gameObject = BuildBuilding(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, false);
+
+                                    //showDebugBasic(gameObject, layer, cell);
+
+                                    if (gameObject != null)
+                                    {
+                                        input.DeleteObject();
+
+                                        Grid.Objects[cell, layer] = gameObject;
+
+                                        foreach (var item in gameObject.GetComponents<Building>())
+                                        {
+                                            TileVisualizer.RefreshCell(cell, item.Def.TileLayer, item.Def.ReplacementLayer);
+                                            item.RefreshCells();
+                                        }
+
+                                        ResourceRemainingDisplayScreen.instance.SetNumberOfPendingConstructions(0);
+
+                                        IDs.Add(input.GetInstanceID());
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                compCancellable.Trigger((int)GameHashes.Cancel);
+                                input.DeleteObject();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in input.GetComponents<Building>())
+                        {
+                            TileVisualizer.RefreshCell(cell, item.Def.TileLayer, item.Def.ReplacementLayer);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
