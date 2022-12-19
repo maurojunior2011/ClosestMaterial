@@ -19,7 +19,6 @@ namespace CloserMaterial
         public static void RegisterElementStrings(string elementId)
         {
             string upperElemId = elementId.ToUpper();
-            Strings.PrintTable();
             Strings.Add($"STRINGS.ELEMENTS.{upperElemId}.NAME", STRINGS.UI.FormatAsLink(Strings.Get("STRINGS.InfoDataStrings.STRING_PLAN_MATERIAL_NAME"), upperElemId));
             Strings.Add($"STRINGS.ELEMENTS.{upperElemId}.DESC", Strings.Get("STRINGS.InfoDataStrings.STRING_PLAN_MATERIAL_DESCRIPTION"));
         }

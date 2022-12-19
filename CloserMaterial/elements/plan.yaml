@@ -39,6 +39,7 @@ elements:
     - Ceramic
     - Polypropylene
     - BuildableAny
+    - Noncrushable
     buildMenuSort: 5
     isDisabled: false
     state: Solid
