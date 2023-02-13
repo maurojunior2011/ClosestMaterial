@@ -1,5 +1,6 @@
 ﻿using CloserMaterial.Info;
 using System.Collections.Generic;
+using TUNING;
 using UnityEngine;
 
 namespace CloserMaterial
@@ -128,29 +129,37 @@ namespace CloserMaterial
             WorldInventory worldInventory = ClusterManager.Instance.GetWorld(ClusterManager.Instance.activeWorldId).worldInventory;
             var lista = worldInventory.GetPickupables(GameTags.Pickupable);
 
-            //for each element
-            foreach (Pickupable pickupable in lista)
+
+            for (int i = 0; i < __instance.MaterialCategory.Length; i++)
             {
-                //game validation
-                if (pickupable.HasTag(GameTags.StoredPrivate))
-                    continue;
-
-                for (int i = 0; i < __instance.MaterialCategory.Length; i++)
+                if (__instance.MaterialCategory[i] == MATERIALS.BUILDINGFIBER || __instance.MaterialCategory[i] == MATERIALS.WOOD)
                 {
-                    if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
+                    newElements[i] = (Tag)__instance.MaterialCategory[i];
+                }
+                else
+                {
+                    //for each element
+                    foreach (Pickupable pickupable in lista)
                     {
-                        int cellP = pickupable.GetCell();
-                        int cellC = Grid.PosToCell(pos);
+                        //game validation
+                        if (pickupable.HasTag(GameTags.StoredPrivate))
+                            continue;
 
-                        int d = Grid.GetCellDistance(cellP, cellC);
-
-                        bool validation = (double)worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
-
-                        //Get Closer Material
-                        if (d < listDistances[i] && validation)
+                        if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
                         {
-                            listDistances[i] = d;
-                            newElements[i] = pickupable.PrimaryElement.Element.tag;
+                            int cellP = pickupable.GetCell();
+                            int cellC = Grid.PosToCell(pos);
+
+                            int d = Grid.GetCellDistance(cellP, cellC);
+
+                            bool validation = (double)worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
+
+                            //Get Closer Material
+                            if (d < listDistances[i] && validation)
+                            {
+                                listDistances[i] = d;
+                                newElements[i] = pickupable.PrimaryElement.Element.tag;
+                            }
                         }
                     }
                 }
