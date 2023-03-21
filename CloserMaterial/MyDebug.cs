@@ -1,5 +1,6 @@
 ﻿using CloserMaterial.Info;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CloserMaterial
@@ -63,6 +64,17 @@ namespace CloserMaterial
             Debug.Log("CloserMaterial = TileLayer => " + defInput.TileLayer);
             Debug.Log("CloserMaterial = ReplacementLayer => " + defInput.ReplacementLayer);
             Debug.Log("CloserMaterial = PrimaryElement => " + element);
+            Debug.Log("CloserMaterial ===============================================================");
+        }
+
+        public static void ShowDebugWorldsContainers(WorldContainer activeWorld, WorldContainer rocketWorld, List<WorldContainer> rockets)
+        {
+            Debug.Log("CloserMaterial ===============================================================");
+            Debug.Log("Active: " + ClusterManager.Instance.activeWorldId);
+            Debug.Log("Parent: " + ClusterManager.Instance.GetMyParentWorldId());
+            Debug.Log("World: " + (activeWorld == null ? "NULL" : activeWorld.name));
+            Debug.Log("Rocket: " + (rocketWorld == null ? "NULL" : rocketWorld.name));
+            Debug.Log("Rockets: " + (rockets == null ? "NULL" : (rockets.Count() == 0 ? "vazio" : string.Join(" <==> ", rockets))));
             Debug.Log("CloserMaterial ===============================================================");
         }
     }

@@ -295,81 +295,84 @@ namespace CloserMaterial.Tool
                     {
                         var listComponentsInput = input.GetComponents<Building>();
 
-                        Vector3 posInput = input.transform.GetPosition();
-                        KBatchedAnimController animControllerInput = input.GetComponent<KBatchedAnimController>();
-
-                        //showDebug(input, layer, pos, listComponentsInput[0].Def);
-
-                        IList<Tag> lista2 = Utils.CloserMaterial(listComponentsInput[0].Def, posInput, lista);
-
-                        bool isReplace = layer == (int)listComponentsInput[0].Def.ReplacementLayer;
-                        bool other = false;
-                        if (isReplace)
+                        if(listComponentsInput.Any())
                         {
-                            //showDebug(input, layer, posInput, listComponentsInput[0].Def);
-                            IList<Tag> lista3 = Grid.Objects[cell, (int)listComponentsInput[0].Def.ObjectLayer].GetComponent<Deconstructable>().constructionElements;
-                            
-                            for (int i = 0; i < lista3.Count; i++)
+                            Vector3 posInput = input.transform.GetPosition();
+                            KBatchedAnimController animControllerInput = input.GetComponent<KBatchedAnimController>();
+
+                            //showDebug(input, layer, pos, listComponentsInput[0].Def);
+
+                            IList<Tag> lista2 = Utils.CloserMaterial(listComponentsInput[0].Def, posInput, lista);
+
+                            bool isReplace = layer == (int)listComponentsInput[0].Def.ReplacementLayer;
+                            bool other = false;
+                            if (isReplace)
                             {
-                                if (lista2[i].GetHash() != lista3[i].GetHash())
+                                //showDebug(input, layer, posInput, listComponentsInput[0].Def);
+                                IList<Tag> lista3 = Grid.Objects[cell, (int)listComponentsInput[0].Def.ObjectLayer].GetComponent<Deconstructable>().constructionElements;
+
+                                for (int i = 0; i < lista3.Count; i++)
                                 {
-                                    other = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            other = true;
-                        }
-
-                        if (lista2.All(x => x.GetHash() != elementA.tag.GetHash()))
-                        {
-                            if (other)
-                            {
-                                Orientation orientation = listComponentsInput[0].Orientation;
-
-                                GameObject gameObject = null;
-
-                                if (listComponentsInput != null && listComponentsInput.Count() > 0)
-                                {
-                                    compCancellable.Trigger((int)GameHashes.Cancel);
-
-                                    if (listComponentsInput[0].Def.IsTilePiece)
+                                    if (lista2[i].GetHash() != lista3[i].GetHash())
                                     {
-                                        if (listComponentsInput[0].Def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>() != null)
-                                            gameObject = BuildUtility(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
-                                        else
-                                            gameObject = BuildTile(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
-                                    }
-                                    else
-                                        gameObject = BuildBuilding(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, false);
-
-                                    //showDebugBasic(gameObject, layer, cell);
-
-                                    if (gameObject != null)
-                                    {
-                                        input.DeleteObject();
-
-                                        Grid.Objects[cell, layer] = gameObject;
-
-                                        foreach (var item in gameObject.GetComponents<Building>())
-                                        {
-                                            TileVisualizer.RefreshCell(cell, item.Def.TileLayer, item.Def.ReplacementLayer);
-                                            item.RefreshCells();
-                                        }
-
-                                        ResourceRemainingDisplayScreen.instance.SetNumberOfPendingConstructions(0);
-
-                                        IDs.Add(input.GetInstanceID());
+                                        other = true;
                                     }
                                 }
                             }
                             else
                             {
-                                compCancellable.Trigger((int)GameHashes.Cancel);
-                                input.DeleteObject();
+                                other = true;
                             }
-                        }
+
+                            if (lista2.All(x => x.GetHash() != elementA.tag.GetHash()))
+                            {
+                                if (other)
+                                {
+                                    Orientation orientation = listComponentsInput[0].Orientation;
+
+                                    GameObject gameObject = null;
+
+                                    if (listComponentsInput != null && listComponentsInput.Count() > 0)
+                                    {
+                                        compCancellable.Trigger((int)GameHashes.Cancel);
+
+                                        if (listComponentsInput[0].Def.IsTilePiece)
+                                        {
+                                            if (listComponentsInput[0].Def.BuildingComplete.GetComponent<IHaveUtilityNetworkMgr>() != null)
+                                                gameObject = BuildUtility(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
+                                            else
+                                                gameObject = BuildTile(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, isReplace);
+                                        }
+                                        else
+                                            gameObject = BuildBuilding(cell, listComponentsInput[0].Def, orientation, lista2, posInput, animControllerInput, false);
+
+                                        //showDebugBasic(gameObject, layer, cell);
+
+                                        if (gameObject != null)
+                                        {
+                                            input.DeleteObject();
+
+                                            Grid.Objects[cell, layer] = gameObject;
+
+                                            foreach (var item in gameObject.GetComponents<Building>())
+                                            {
+                                                TileVisualizer.RefreshCell(cell, item.Def.TileLayer, item.Def.ReplacementLayer);
+                                                item.RefreshCells();
+                                            }
+
+                                            ResourceRemainingDisplayScreen.instance.SetNumberOfPendingConstructions(0);
+
+                                            IDs.Add(input.GetInstanceID());
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    compCancellable.Trigger((int)GameHashes.Cancel);
+                                    input.DeleteObject();
+                                }
+                            }
+                        }                        
                     }
                     else
                     {

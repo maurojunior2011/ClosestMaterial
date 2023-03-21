@@ -1,5 +1,7 @@
 ﻿using CloserMaterial.Info;
+using STRINGS;
 using System.Collections.Generic;
+using System.Linq;
 using TUNING;
 using UnityEngine;
 
@@ -113,6 +115,8 @@ namespace CloserMaterial
 
         public static IList<Tag> CloserMaterial(BuildingDef __instance, Vector3 pos, IList<Tag> elements)
         {
+            if (!elements.Any()) return elements;
+
             IList<int> listDistances = new List<int>(elements.Count);
             for (int i = 0; i < elements.Count; i++)
             {
@@ -125,11 +129,70 @@ namespace CloserMaterial
                 newElements.Add(elements[i]);
             }
 
-            //inventory
-            WorldInventory worldInventory = ClusterManager.Instance.GetWorld(ClusterManager.Instance.activeWorldId).worldInventory;
-            var lista = worldInventory.GetPickupables(GameTags.Pickupable);
+            //ActiveWorld
+            WorldContainer activeWorld = null;
 
+            //Rocket
+            WorldContainer rocketWorld = null;
 
+            //All Rockets
+            List<WorldContainer> rockets = null;
+
+            if (ClusterManager.Instance.activeWorld.IsModuleInterior)
+            {
+                rocketWorld = ClusterManager.Instance.activeWorld;
+
+                if(rocketWorld.GetComponent<Clustercraft>().Status == Clustercraft.CraftStatus.Grounded)
+                {
+                    activeWorld = ClusterManager.Instance.GetWorld(ClusterManager.Instance.GetMyParentWorldId());
+
+                    rockets = ClusterManager.Instance.WorldContainers.Where(x => x.ParentWorldId == activeWorld.id && x.IsModuleInterior && x.GetComponent<Clustercraft>().Status == Clustercraft.CraftStatus.Grounded && x.id != rocketWorld.id)?.ToList();
+                }
+            }
+            else
+            {
+                activeWorld = ClusterManager.Instance.activeWorld;
+
+                rockets = ClusterManager.Instance.WorldContainers.Where(x => x.ParentWorldId == activeWorld.id && x.IsModuleInterior && x.GetComponent<Clustercraft>().Status == Clustercraft.CraftStatus.Grounded)?.ToList();
+            }
+
+            
+            List<(ICollection<Pickupable> P, WorldContainer W)> availableItens = new List<(ICollection<Pickupable>, WorldContainer)>();
+
+            //activeWorld inventory
+            if (activeWorld != null)
+            {
+                var temp = activeWorld.worldInventory.GetPickupables(GameTags.Pickupable);
+                if(temp != null)
+                {
+                    availableItens.Add((temp, activeWorld));
+                }
+            }
+
+            //rocketWorld inventory
+            if (rocketWorld != null)
+            {
+                var temp = rocketWorld.worldInventory.GetPickupables(GameTags.Pickupable);
+                if (temp != null)
+                {
+                    availableItens.Add((temp, rocketWorld));
+                }
+            }
+
+            //rockets inventorys
+            if(rockets!= null)
+            {
+                foreach(var rocket in rockets)
+                {
+                    var temp = rocket.worldInventory.GetPickupables(GameTags.Pickupable);
+                    if (temp != null)
+                    {
+                        availableItens.Add((temp, rocket));
+                    }
+                }
+            }
+
+            //Discover closest material
             for (int i = 0; i < __instance.MaterialCategory.Length; i++)
             {
                 if (__instance.MaterialCategory[i] == MATERIALS.BUILDINGFIBER || __instance.MaterialCategory[i] == MATERIALS.WOOD)
@@ -138,27 +201,31 @@ namespace CloserMaterial
                 }
                 else
                 {
-                    //for each element
-                    foreach (Pickupable pickupable in lista)
+                    foreach (var listItensAvailable in availableItens)
                     {
-                        //game validation
-                        if (pickupable.HasTag(GameTags.StoredPrivate))
-                            continue;
-
-                        if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
+                        //for each element
+                        foreach (Pickupable pickupable in listItensAvailable.P)
                         {
-                            int cellP = pickupable.GetCell();
-                            int cellC = Grid.PosToCell(pos);
+                            //game validation
+                            if (pickupable.HasTag(GameTags.StoredPrivate))
+                                continue;
 
-                            int d = Grid.GetCellDistance(cellP, cellC);
-
-                            bool validation = (double)worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
-
-                            //Get Closer Material
-                            if (d < listDistances[i] && validation)
+                            if (pickupable.PrimaryElement.Element.IsSolid && (pickupable.PrimaryElement.Element.tag.Name == __instance.MaterialCategory[i] || pickupable.PrimaryElement.Element.HasTag((Tag)__instance.MaterialCategory[i])))
                             {
-                                listDistances[i] = d;
-                                newElements[i] = pickupable.PrimaryElement.Element.tag;
+                                int cellP = pickupable.GetCell();
+                                int cellC = Grid.PosToCell(pos);
+
+                                int d = Grid.GetCellDistance(cellP, cellC);
+
+                                bool validation =
+                                    (double)listItensAvailable.W.worldInventory.GetAmount(pickupable.PrimaryElement.Element.tag, false) >= (double)__instance.Mass[i];
+
+                                //Get Closer Material
+                                if (d < listDistances[i] && validation)
+                                {
+                                    listDistances[i] = d;
+                                    newElements[i] = pickupable.PrimaryElement.Element.tag;
+                                }
                             }
                         }
                     }
