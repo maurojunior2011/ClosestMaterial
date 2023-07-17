@@ -77,5 +77,22 @@ namespace CloserMaterial
             Debug.Log("Rockets: " + (rockets == null ? "NULL" : (rockets.Count() == 0 ? "vazio" : string.Join(" <==> ", rockets))));
             Debug.Log("CloserMaterial ===============================================================");
         }
+
+        public static void ShowMaterials(IList<Tag> selected_elements, BuildingDef defInput)
+        {
+            Debug.Log("CloserMaterial ===============================================================");
+            Debug.Log("CloserMaterial = Name => " + defInput.Name);
+            Debug.Log("CloserMaterial = ELEMENTS");
+            foreach (var tag in selected_elements)
+            {
+                Debug.Log("CloserMaterial = " + tag.ToString() + " <=> " + tag.GetHash());
+            }
+            Debug.Log("CloserMaterial = CATEGORY");
+            for (int i = 0; i < defInput.MaterialCategory.Length; i++)
+            {
+                Debug.Log("CloserMaterial = " + ((Tag)defInput.MaterialCategory[i]).ToString() + " <=> " + ((Tag)defInput.MaterialCategory[i]).GetHash());
+            }
+            Debug.Log("CloserMaterial ===============================================================");
+        }
     }
 }

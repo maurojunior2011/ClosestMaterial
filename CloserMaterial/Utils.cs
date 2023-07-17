@@ -195,9 +195,13 @@ namespace CloserMaterial
             //Discover closest material
             for (int i = 0; i < __instance.MaterialCategory.Length; i++)
             {
-                if (__instance.MaterialCategory[i] == MATERIALS.BUILDINGFIBER || __instance.MaterialCategory[i] == MATERIALS.WOOD)
+                if (__instance.MaterialCategory[i] == MATERIALS.BUILDINGFIBER)
                 {
-                    newElements[i] = (Tag)__instance.MaterialCategory[i];
+                    newElements[i] = "BasicFabric".ToTag();
+                }
+                else if (__instance.MaterialCategory[i] == MATERIALS.WOOD)
+                {
+                    newElements[i] = "WoodLog".ToTag();
                 }
                 else
                 {

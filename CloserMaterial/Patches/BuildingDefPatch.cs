@@ -15,6 +15,8 @@ namespace CloserMaterial.Patches
         {
             if (InfoData.OPTIONS.AutomaticChange)
             {
+                //MyDebug.ShowMaterials(selected_elements, __instance);
+
                 SimHashes simElemA = InfoData.PlanRaw;
                 Element elementA = ElementLoader.FindElementByHash(simElemA);
 
@@ -22,6 +24,8 @@ namespace CloserMaterial.Patches
                 {
                     selected_elements = Utils.CloserMaterial(__instance, pos, selected_elements);
                 }
+
+                //MyDebug.ShowMaterials(selected_elements, __instance);
             }
         }
     }
