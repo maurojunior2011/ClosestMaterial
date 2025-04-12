@@ -8,6 +8,8 @@ using PeterHan.PLib.Database;
 using PeterHan.PLib.Options;
 using PeterHan.PLib.PatchManager;
 using PeterHan.PLib.UI;
+using System;
+using System.IO;
 using System.Reflection;
 
 namespace CloserMaterial
@@ -18,36 +20,40 @@ namespace CloserMaterial
         {
             base.OnLoad(harmony);
             PUtil.InitLibrary();
-            new POptions().RegisterOptions((UserMod2)this, typeof(CloserMaterialOptions));
             new PPatchManager(harmony).RegisterPatchClass(typeof(CloserMaterial));
-            new PLocalization().Register();
+            PLocalization localization = new PLocalization();
+            localization.Register();
             Assembly executingAssembly = Assembly.GetExecutingAssembly();
             InfoData.PLAN_ICON_SPRITE = PUIUtils.LoadSprite("CloserMaterial.Tool.Images.image_plan_tool_button.png");
             InfoData.PLAN_ICON_SPRITE.name = InfoData.PLAN_ICON_NAME;
             InfoData.PLAN_VISUALIZER_SPRITE = PUIUtils.LoadSprite("CloserMaterial.Tool.Images.image_plan_tool_visualizer.png");
             InfoData.PLAN_OPENTOOL = new PActionManager().CreateAction("Plan.opentool", (LocString)"Plan", new PKeyBinding());
+            //MyDebug.ShowMessage(Localization.GetCurrentLanguageCode());
+            LocString.CreateLocStringKeys(typeof(INFODATASTRING));
 
-            if (Localization.GetCurrentLanguageCode().Equals("pt"))
-            {
-                LocString.CreateLocStringKeys(typeof(Info.pt.InfoDataStrings));
-            }
-            else
-            {
-                LocString.CreateLocStringKeys(typeof(Info.InfoDataStrings));
-            }
+            //string modPath = PUtil.GetModPath(executingAssembly);
+            //string text = Localization.GetCurrentLanguageCode();
+            //string path = Path.Combine(Path.Combine(modPath, "translations"), text + ".po");
+            //MyDebug.ShowMessage(path);
+            //try
+            //{
+            //    Localization.OverloadStrings(Localization.LoadStringsFile(path, false));
+            //}
+            //catch (Exception ex)
+            //{
+            //    //MyDebug.ShowMessage(ex.Message);
+            //}
+
+            //if (Localization.GetCurrentLanguageCode().Equals("pt"))
+            //{
+            //    LocString.CreateLocStringKeys(typeof(Info.pt.InfoDataStrings));
+            //}
+            //else
+            //{
+            //    LocString.CreateLocStringKeys(typeof(Info.InfoDataStrings));
+            //}
 
             new PVersionCheck().Register((UserMod2)this, (IModVersionChecker)new SteamVersionChecker());
-
-            InfoData.OPTIONS = POptions.ReadSettings<CloserMaterialOptions>() ?? new CloserMaterialOptions();
-        }
-
-        [HarmonyPatch(typeof(PlayerController), "OnPrefabInit")]
-        public static class PlayerControllerOnPrefabInitPatch
-        {
-            public static void Postfix(PlayerController __instance)
-            {
-                InfoData.OPTIONS = POptions.ReadSettings<CloserMaterialOptions>() ?? new CloserMaterialOptions();
-            }
         }
     }
 }

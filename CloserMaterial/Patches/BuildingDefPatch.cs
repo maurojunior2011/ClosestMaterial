@@ -13,19 +13,10 @@ namespace CloserMaterial.Patches
     {
         public static void Prefix(ref IList<Tag> selected_elements, ref Vector3 pos, BuildingDef __instance)
         {
-            if (InfoData.OPTIONS.AutomaticChange)
+            //MyDebug.ShowMessage(InfoData.ACTIVE.ToString());
+            if (InfoData.ACTIVE && (selected_elements != null && selected_elements.Any()))
             {
-                //MyDebug.ShowMaterials(selected_elements, __instance);
-
-                SimHashes simElemA = InfoData.PlanRaw;
-                Element elementA = ElementLoader.FindElementByHash(simElemA);
-
-                if(selected_elements.Any(x => x.GetHash() == elementA.tag.GetHash()))
-                {
-                    selected_elements = Utils.CloserMaterial(__instance, pos, selected_elements);
-                }
-
-                //MyDebug.ShowMaterials(selected_elements, __instance);
+                selected_elements = Utils.CloserMaterial(__instance, pos, selected_elements);
             }
         }
     }

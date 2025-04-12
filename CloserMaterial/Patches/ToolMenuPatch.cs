@@ -17,6 +17,6 @@ namespace CloserMaterial.Patches
     [HarmonyPatch(typeof(ToolMenu), "CreateBasicTools")]
     public static class ToolMenuPatch_CreateBasicTools
     {
-        public static void Prefix(ToolMenu __instance) => __instance.basicTools.Add(ToolMenu.CreateToolCollection((string)Strings.Get("STRINGS.InfoDataStrings.STRING_PLAN_NAME"), InfoData.PLAN_ICON_NAME, InfoData.PLAN_OPENTOOL.GetKAction(), InfoData.PLAN_TOOLNAME, (LocString)string.Format(Strings.Get("STRINGS.InfoDataStrings.STRING_PLAN_TOOLTIP"), (object)"{Hotkey}"), false));
+        public static void Prefix(ToolMenu __instance) => __instance.basicTools.Add(ToolMenu.CreateToolCollection((string)Strings.Get("STRINGS.INFODATASTRING.MJ_CLOSESTMATERIAL.PLAN_NAME"), InfoData.PLAN_ICON_NAME, InfoData.PLAN_OPENTOOL.GetKAction(), InfoData.PLAN_TOOLNAME, (LocString)string.Format(Strings.Get("STRINGS.INFODATASTRING.MJ_CLOSESTMATERIAL.PLAN_TOOLTIP"), (object)"{Hotkey}"), false));
     }
 }
